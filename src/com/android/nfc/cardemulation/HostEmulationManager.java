@@ -67,7 +67,7 @@ import java.util.TreeMap;
 
 public class HostEmulationManager {
     static final String TAG = "HostEmulationManager";
-    static final boolean DBG = NfcProperties.debug_enabled().orElse(true);
+    static final boolean DBG = NfcProperties.debug_enabled().orElse(false);
 
     static final int STATE_IDLE = 0;
     static final int STATE_W4_SELECT = 1;
@@ -625,7 +625,11 @@ public class HostEmulationManager {
 
     void unbindPaymentServiceLocked() {
         if (mPaymentServiceBound) {
-            mContext.unbindService(mPaymentConnection);
+            try {
+                mContext.unbindService(mPaymentConnection);
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to unbind payment service: " + mPaymentServiceName, e);
+            }
             mPaymentServiceBound = false;
             mPaymentService = null;
             mPaymentServiceName = null;
@@ -657,7 +661,11 @@ public class HostEmulationManager {
     void unbindServiceIfNeededLocked() {
         if (mServiceBound) {
             Log.d(TAG, "Unbinding from service " + mServiceName);
-            mContext.unbindService(mConnection);
+            try {
+                mContext.unbindService(mConnection);
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to unbind service " + mServiceName, e);
+            }
             mServiceBound = false;
             mService = null;
             mServiceName = null;
